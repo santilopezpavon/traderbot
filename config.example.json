@@ -1,0 +1,29 @@
+{
+    "information": {
+        "urlbaseapi": "https://api.binance.com/api/v1/"
+    },
+    "memory": {
+        "data": "name-2"
+    },
+    "observer": {
+        "pair": "DOTBUSD",
+        "minutes": "1",
+        "coin": "DOT",
+        "purschase": "BUSD",
+        "doBuy": true,
+        "doSale": true
+    },
+    "apiBinance": {
+        "publicKey": "",
+        "privateKey": ""
+    },
+    "economy": {
+        "reduceUnitsPriceForBuy": 2,
+        "incrementUnitsPriceForSale": 2,
+        "reduceUnitsPriceForCorrectSale": 1
+    },
+    "cicles": {
+        "ciclesCheckSale": 6,
+        "ciclesRefreshParameters": 10
+    }
+}

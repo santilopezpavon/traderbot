@@ -2,10 +2,11 @@ import { getFilesService } from "../Memory/Memory.js"
 import { getCoinsInformation } from "../Connection/CoinsInformation.js"
 import { getAnalisys } from "../Analisys/Analisys.js"
 import { getOrderBookIndicators } from "../Indicators/OrderBookIndicators.js"
+import {getBrain} from "../Brain/Brain.js"
+import {getSalePriceCorrector} from "../Brain/SalePriceCorrector.js"
 
 
 import { createRequire } from 'node:module';
-import { exit } from "node:process";
 const require = createRequire(import.meta.url);
 
 const configuration = require('../../config.json');
@@ -25,6 +26,10 @@ class Oberver {
 
     numLoopsToMakeDecisions;
 
+    brain;
+
+    saleCorrector;
+
 
     static getInstance() {
         if (!Oberver.#instance) {
@@ -38,6 +43,8 @@ class Oberver {
         this.fileService = getFilesService(this.nameFile);
         this.analisys = getAnalisys();
         this.numLoopsToMakeDecisions = 10;
+        this.brain = getBrain();
+        this.saleCorrector = getSalePriceCorrector();
     }
 
     async initObserver() {
@@ -49,24 +56,42 @@ class Oberver {
         await current.observation(pair);
         const priceBuy = this.analisys.getBuyOptimalPrice();
         console.log("Precio Optimo Compra " + priceBuy);
-        
+        if(configuration.observer.doBuy === true && priceBuy !== false) {
+            current.brain.totalBuy(priceBuy);
+        }
+        current.brain.totalSale();
         setInterval(async () => {
+            if(numLoop % configuration.cicles.ciclesRefreshParameters == 0 ) {
+                await current.brain.updateParameters();
+            }
+            if(numLoop % configuration.cicles.ciclesCheckSale == 0 ) {
+                await current.saleCorrector.correctPriceSale();
+            }
             await current.observation(pair);
             //if(current.numLoopsToMakeDecisions <= numLoop) {
-                const priceBuy = this.analisys.getBuyOptimalPrice();
+                const priceBuy = current.analisys.getBuyOptimalPrice();
                 console.log("Precio Optimo Compra " + priceBuy);
+                if(configuration.observer.doBuy === true && priceBuy !== false) {
+                    current.brain.totalBuy(priceBuy);
+                }
+                if(configuration.observer.doSale === true) {
+                    current.brain.totalSale();
+                }
+
           //  }
             numLoop++;
         }, time * 60 * 1000);
     }
 
     async observation(pair) {
-        const coin = pair.replace("BUSD", "");
+        const coin = configuration.observer.coin;
 
         const coinInfo = await getCoinsInformation();
         const currentPrice = await coinInfo.getCurrentPrice(coin);
         const orderBookIndicators = getOrderBookIndicators();
         const data = await orderBookIndicators.getIndicators(pair);
+
+        this.brain.setCurrentPrice(currentPrice);
 
         let objectToSave = {
             "price": currentPrice,
@@ -135,7 +160,4 @@ class Oberver {
     
         return printInfo;
     }
-
-
-
 }

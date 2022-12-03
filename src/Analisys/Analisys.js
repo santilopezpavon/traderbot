@@ -72,13 +72,34 @@ class Analisys {
         return data[0];
     }
 
+    getDataWithRelativeFreq() {
+        const data = this.getDataSorted("price", "ASC");
+
+        let posMoreFreq = 0;
+        let maxFreq = 0;
+
+        for (let index = 0; index < data.length; index++) {
+            const element = data[index];
+            if(element.freq > maxFreq) {
+                maxFreq = element.freq;
+                posMoreFreq = index;
+            }           
+        }
+
+        for (let index = 0; index < data.length; index++) {
+            data[index]["relativeFreq"] =   data[index].freq / maxFreq;        
+        }
+
+        return data;
+    }
+
     getBuyOptimalPrice() {
 
         const data = this.getDataSorted("price", "ASC");
         let posMoreFreq = 0;
         let maxFreq = 0;
 
-        if(data.length < 3) {
+        if(data.length < 2) {
             return false;
         }
 
