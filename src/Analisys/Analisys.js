@@ -134,7 +134,7 @@ class Analisys {
 
         const firstMoreFreqData = data[posFirstMoreFreq];
         if(
-            firstMoreFreqData.demandStrong > 0.55 &&
+            firstMoreFreqData.demandStrong > 0.59 &&
             firstMoreFreqData.firstDemandZone > (firstMoreFreqData.price - 0.03)
         ) {
             return firstMoreFreqData.price - 0.02;
