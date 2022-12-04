@@ -98,11 +98,23 @@ class SalePriceCorrector {
     }
 
     async getNewPrice(priceSaleObjective, pirceBuyOrigin, priceCurrent) {
+       // Ajuste inicial al precio.
         let newPrice = priceSaleObjective - 0.01;
+
+        if(
+            newPrice < pirceBuyOrigin   // Pérdida
+        ) { 
+            const diff = (pirceBuyOrigin - priceCurrent) / priceCurrent;
+            if(diff < 0.012) {
+                return false;
+            }
+        }
+        
+
         console.log("Price Current getNewPrice " + priceCurrent);
         console.log("newPrice getNewPrice " + newPrice);
 
-        if(newPrice > (priceCurrent + 0.01)) { // Con margen de seguridad de una unidad
+        if( newPrice> (priceCurrent + 0.01)) { // Con margen de seguridad de una unidad
             return newPrice;
         }
         return false;       
