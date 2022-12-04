@@ -2,8 +2,8 @@ import { getFilesService } from "../Memory/Memory.js"
 import { getCoinsInformation } from "../Connection/CoinsInformation.js"
 import { getAnalisys } from "../Analisys/Analisys.js"
 import { getOrderBookIndicators } from "../Indicators/OrderBookIndicators.js"
-import {getBrain} from "../Brain/Brain.js"
-import {getSalePriceCorrector} from "../Brain/SalePriceCorrector.js"
+import { getBrain } from "../Brain/Brain.js"
+import { getSalePriceCorrector } from "../Brain/SalePriceCorrector.js"
 
 
 import { createRequire } from 'node:module';
@@ -52,33 +52,33 @@ class Oberver {
         const pair = configuration.observer.pair;
         const time = configuration.observer.minutes;
         const current = this;
-        
+
         await current.observation(pair);
         const priceBuy = this.analisys.getBuyOptimalPrice();
         console.log("Precio Optimo Compra " + priceBuy);
-        if(configuration.observer.doBuy === true && priceBuy !== false) {
+        if (configuration.observer.doBuy === true && priceBuy !== false) {
             current.brain.totalBuy(priceBuy);
         }
         current.brain.totalSale();
         setInterval(async () => {
-            if(numLoop % configuration.cicles.ciclesRefreshParameters == 0 ) {
+            if (numLoop % configuration.cicles.ciclesRefreshParameters == 0) {
                 await current.brain.updateParameters();
             }
-            if(numLoop % configuration.cicles.ciclesCheckSale == 0 ) {
+            if (numLoop % configuration.cicles.ciclesCheckSale == 0) {
                 await current.saleCorrector.correctPriceSale();
             }
             await current.observation(pair);
-            //if(current.numLoopsToMakeDecisions <= numLoop) {
+            if (current.numLoopsToMakeDecisions <= numLoop) {
                 const priceBuy = current.analisys.getBuyOptimalPrice();
                 console.log("Precio Optimo Compra " + priceBuy);
-                if(configuration.observer.doBuy === true && priceBuy !== false) {
+                if (configuration.observer.doBuy === true && priceBuy !== false) {
                     current.brain.totalBuy(priceBuy);
                 }
-                if(configuration.observer.doSale === true) {
+                if (configuration.observer.doSale === true) {
                     current.brain.totalSale();
                 }
 
-          //  }
+            }
             numLoop++;
         }, time * 60 * 1000);
     }
@@ -119,7 +119,7 @@ class Oberver {
         }
 
 
-        
+
 
         this.fileService.addItemFileObject(objectToSave, "price");
 
@@ -136,16 +136,16 @@ class Oberver {
         for (var vehicle in dataFile) {
             sortable.push([vehicle, dataFile[vehicle]]);
         }
-    
+
         sortable.sort(function (a, b) {
-            if(order === 'ASC') {
+            if (order === 'ASC') {
                 return a[1][propOrder] - b[1][propOrder];
-    
+
             } else {
                 return b[1][propOrder] - a[1][propOrder];
             }
         });
-        
+
         let printInfo = [];
         for (let index = 0; index < sortable.length; index++) {
             const element = sortable[index];
@@ -155,9 +155,9 @@ class Oberver {
                 "firstOfferZone": element[1].firstOfferZone,
                 "firstDemandZone": element[1].firstDemandZone,
                 "freq": element[1].freq
-            })        
+            })
         }
-    
+
         return printInfo;
     }
 }
