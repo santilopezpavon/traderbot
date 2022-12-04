@@ -105,7 +105,7 @@ class SalePriceCorrector {
             newPrice < pirceBuyOrigin   // Pérdida
         ) { 
             const diff = (pirceBuyOrigin - priceCurrent) / priceCurrent;
-            if(diff < 0.012) {
+            if(diff < 0.010) {
                 return false;
             }
         }
