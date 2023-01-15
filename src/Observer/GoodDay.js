@@ -41,7 +41,7 @@ class GoodDay {
     constructor() {
         this.nameFile = configuration.memory.gooday;
         this.analisys = getAnalisys();
-        this.numLoopsToMakeDecisions = 3;
+        this.numLoopsToMakeDecisions = 20;
         this.brain = getBrain();
         this.saleCorrector = getSalePriceCorrector();
         this.totalDemand = 0;
@@ -52,7 +52,7 @@ class GoodDay {
         let numLoop = 0;
         let points = 0;
         const pair = configuration.observer.pair;
-        const time = configuration.observer.minutes;
+        const time = 0.5;
         const current = this;
         current.totalDemand = 0;
         current.totalDemandv2 = 0;
@@ -61,19 +61,21 @@ class GoodDay {
         const isGoodMoment = await current.checkGoodMoment(pair);
         if (isGoodMoment === true) {
             points++;
-            numLoop++;
             //console.log("Proceso " + ((numLoop / current.numLoopsToMakeDecisions) * 100));
 
         }
-        
+        numLoop++;
+        console.log("PROGRESS...." + (numLoop / current.numLoopsToMakeDecisions) *100 + '%'  );
+
         const interval = setInterval(async () => {
             numLoop++;
-            
+            console.log("PROGRESS...." + (numLoop / current.numLoopsToMakeDecisions) *100 + '%'  );
+
             if (numLoop >= current.numLoopsToMakeDecisions) {
                /* console.log(numLoop);
                 console.log(current.totalDemand);*/
 
-                console.log((points / numLoop) + "%");
+                console.log((points / numLoop) * 100 + '' + "%");
                 /*console.log(current.totalDemand / numLoop);
                 console.log(current.totalDemandv2 / numLoop);*/
                 clearInterval(interval);
@@ -101,8 +103,10 @@ class GoodDay {
         const data = await orderBookIndicators.getIndicators(pair);
         this.totalDemand+= data.demandStrong;
         this.totalDemandv2 += data.demandStrongV2Indicator;
-        //console.log(data.demandStrong);
-        if (data.demandStrong > 0.58 && data.demandStrongV2Indicator > 0.5) {
+        /*console.log("Observación --" + pair);
+        console.table(data.demandStrong);
+        console.table(data.demandStrongV2Indicator);*/
+        if (data.demandStrong >= 0.55 && data.demandStrongV2Indicator >= 0.5) {
             return true;
         }
         return false;

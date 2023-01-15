@@ -41,7 +41,7 @@ class Brain {
         this.#coinsInformation = getCoinsInformation();
         this.#currentPrice = null;
         this.#transaction = getTransaction();
-    }   
+    }
 
     setCurrentPrice(currentPrice) {
         this.#currentPrice = currentPrice;
@@ -54,7 +54,7 @@ class Brain {
             if (priceBuy > priceOrdeToCancel) {
                 const orderIdToCancel = memoryBuyData.purchaseData.orderId;
                 const canceledOrder = await this.cancelOrder(orderIdToCancel);
-                
+
             }
         }
 
@@ -117,15 +117,38 @@ class Brain {
                 "priceSale": priceSale,
                 "saleData": sellOperation.data,
                 "priceBuy": memoryBuyData.priceBuy
-            }); 
+            });
             this.#memory.setPermanent("buy", {});
-            
+
         }
         //Saber si compra puede haber pasado
 
         // Acutalizar datos
 
         // Verificar y proceder a compra con precio nuevo 
+    }
+
+
+    async checkOlderBuyOrder() {
+        const memoryBuyData = this.#memory.getPermanent("buy");
+        if (memoryBuyData != false && memoryBuyData.hasOwnProperty("purchaseData")) {
+            const timeOrderBuy = memoryBuyData.time;
+            const operationDate = new Date(timeOrderBuy);
+            const date = new Date();
+
+            let diferencia = date.getTime() - operationDate.getTime();
+            let horasTranscurridas = diferencia / 1000 / 60 / 60;
+            let minutosTranscurridos = horasTranscurridas * 60;
+            if(minutosTranscurridos > 20) {
+                const orderIdToCancel = memoryBuyData.purchaseData.orderId;
+                await this.cancelOrder(orderIdToCancel);
+            }
+            /*if (priceBuy > priceOrdeToCancel) {
+                const orderIdToCancel = memoryBuyData.purchaseData.orderId;
+                const canceledOrder = await this.cancelOrder(orderIdToCancel);
+                
+            }*/
+        }
     }
 
 
@@ -136,13 +159,13 @@ class Brain {
         for (let index = 1; index < 4; index++) {
             let low = historical[historical.length - index].low;
             let high = historical[historical.length - index].high;
-    
+
             if (price <= high && price >= low) {
                 return true;
             }
-        }      
+        }
 
-       
+
         return false;
     }
 
@@ -150,17 +173,17 @@ class Brain {
     async cancelOrder(orderId) {
         const current = this;
         const orderCanceled = await this.#transaction.cancelOrder(orderId);
-        if(orderCanceled !== false) {
+        if (orderCanceled !== false) {
             await current.updateParameters();
         }
-        return orderCanceled;        
+        return orderCanceled;
     }
 
 
     async doBuy(price, qty) {
         const current = this;
         const orderBuy = await this.#transaction.doBuy(price, qty);
-        if(orderBuy !== false) {
+        if (orderBuy !== false) {
             await current.updateParameters();
         }
         return orderBuy;
@@ -169,7 +192,7 @@ class Brain {
     async doSale(price, qty) {
         const current = this;
         const orderSale = await this.#transaction.doSale(price, qty);
-        if(orderSale !== false) {
+        if (orderSale !== false) {
             await current.updateParameters();
         }
         return orderSale;
@@ -177,7 +200,7 @@ class Brain {
 
     async hasPruchasePower() {
         const purchaseQty = await this.getPurchaseQty();
-        if(purchaseQty > 10) {
+        if (purchaseQty > 10) {
             return true;
         }
         return false;

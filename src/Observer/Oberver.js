@@ -61,6 +61,7 @@ class Oberver {
         }
         current.brain.totalSale();
         setInterval(async () => {
+            await current.brain.checkOlderBuyOrder();
             if (numLoop % configuration.cicles.ciclesRefreshParameters == 0) {
                 await current.brain.updateParameters();
             }
