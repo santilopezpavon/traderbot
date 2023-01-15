@@ -41,32 +41,57 @@ class GoodDay {
     constructor() {
         this.nameFile = configuration.memory.gooday;
         this.analisys = getAnalisys();
-        this.numLoopsToMakeDecisions = 30;
+        this.numLoopsToMakeDecisions = 3;
         this.brain = getBrain();
         this.saleCorrector = getSalePriceCorrector();
+        this.totalDemand = 0;
+        this.totalDemandv2 = 0;
     }
 
-    async initGoodDayOberver() {
+    async initGoodDayOberver(callback = null) {
         let numLoop = 0;
         let points = 0;
         const pair = configuration.observer.pair;
         const time = configuration.observer.minutes;
         const current = this;
+        current.totalDemand = 0;
+        current.totalDemandv2 = 0;
+        
+        
         const isGoodMoment = await current.checkGoodMoment(pair);
         if (isGoodMoment === true) {
             points++;
+            numLoop++;
+            //console.log("Proceso " + ((numLoop / current.numLoopsToMakeDecisions) * 100));
+
         }
-        console.log(isGoodMoment);
+        
         const interval = setInterval(async () => {
             numLoop++;
-            const isGoodMoment = await current.checkGoodMoment(pair);
-            if (isGoodMoment === true) {
-                points++;
-            }
-            if (numLoop > 1) {
+            
+            if (numLoop >= current.numLoopsToMakeDecisions) {
+               /* console.log(numLoop);
+                console.log(current.totalDemand);*/
+
                 console.log((points / numLoop) + "%");
+                /*console.log(current.totalDemand / numLoop);
+                console.log(current.totalDemandv2 / numLoop);*/
                 clearInterval(interval);
+                if(callback !== null) {
+                    callback(current.totalDemand / numLoop, current.totalDemandv2 / numLoop);
+                }
+            } else {
+                //console.log("Proceso " + ((numLoop / current.numLoopsToMakeDecisions) * 100));
+                const isGoodMoment = await current.checkGoodMoment(pair);
+                if (isGoodMoment === true) {
+                    points++;
+                }
             }
+
+            
+            
+
+
         }, time * 60 * 1000);
 
     }
@@ -74,8 +99,10 @@ class GoodDay {
     async checkGoodMoment(pair) {
         const orderBookIndicators = getOrderBookIndicators();
         const data = await orderBookIndicators.getIndicators(pair);
-
-        if (data.demandStrong > 0.6 && data.demandStrongV2Indicator > 0.5) {
+        this.totalDemand+= data.demandStrong;
+        this.totalDemandv2 += data.demandStrongV2Indicator;
+        //console.log(data.demandStrong);
+        if (data.demandStrong > 0.58 && data.demandStrongV2Indicator > 0.5) {
             return true;
         }
         return false;
