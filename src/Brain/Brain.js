@@ -1,8 +1,8 @@
 import { getMemoryInMemory } from "../Memory/MemoryInMemory.js"
 import { getAccount } from "../Account/Account.js"
-import { getConnectionSpot } from "../Connection/ConnectorSpot.js"
 import { getCoinsInformation } from "../Connection/CoinsInformation.js";
 import { getTransaction } from "../Transaction/Transaction.js";
+import { getGoodDay } from "../Observer/GoodDay.js";
 
 
 import { createRequire } from 'node:module';
@@ -28,6 +28,10 @@ class Brain {
 
     #currentPrice
 
+    #goodDayService
+
+    #dataScore
+
     static getInstance() {
         if (!Brain.#instance) {
             Brain.#instance = new Brain()
@@ -41,6 +45,25 @@ class Brain {
         this.#coinsInformation = getCoinsInformation();
         this.#currentPrice = null;
         this.#transaction = getTransaction();
+        this.#goodDayService = getGoodDay();
+        this.#dataScore = {
+            score: 0
+        };
+
+        const current = this;
+
+        this.#goodDayService.initGoodDayOberver(function (res) {
+            current.#dataScore["score"] = res.score;
+        });
+
+        setInterval(function () {
+            current.#goodDayService.initGoodDayOberver(function (res) {
+                current.#dataScore["score"] = res.score;
+            });
+        }, 60 * 60 * 1000);
+
+
+
     }
 
     setCurrentPrice(currentPrice) {
@@ -48,13 +71,19 @@ class Brain {
     }
 
     async totalBuy(priceBuy) {
+        console.log("*****");
+        console.log(this.#dataScore["score"]);
+
+        if(this.#dataScore["score"] < 0.45) {            
+            return;
+        }
+
         const memoryBuyData = this.#memory.getPermanent("buy");
         if (memoryBuyData != false && memoryBuyData.hasOwnProperty("purchaseData")) {
             const priceOrdeToCancel = memoryBuyData.priceBuy;
             if (priceBuy > priceOrdeToCancel) {
                 const orderIdToCancel = memoryBuyData.purchaseData.orderId;
                 const canceledOrder = await this.cancelOrder(orderIdToCancel);
-
             }
         }
 
@@ -139,7 +168,7 @@ class Brain {
             let diferencia = date.getTime() - operationDate.getTime();
             let horasTranscurridas = diferencia / 1000 / 60 / 60;
             let minutosTranscurridos = horasTranscurridas * 60;
-            if(minutosTranscurridos > 20) {
+            if (minutosTranscurridos > 20) {
                 const orderIdToCancel = memoryBuyData.purchaseData.orderId;
                 await this.cancelOrder(orderIdToCancel);
             }
