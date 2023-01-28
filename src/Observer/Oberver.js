@@ -48,7 +48,8 @@ class Oberver {
     }
 
     async initObserver() {
-        let numLoop = 0;
+        try {
+            let numLoop = 0;
         const pair = configuration.observer.pair;
         const time = configuration.observer.minutes;
         const current = this;
@@ -82,6 +83,10 @@ class Oberver {
             }
             numLoop++;
         }, time * 60 * 1000);
+        } catch (error) {
+            
+        }
+        
     }
 
     async observation(pair) {
