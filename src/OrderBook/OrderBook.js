@@ -75,6 +75,9 @@ class OrderBook {
     async getStrongPosition(pair) {
 
         const bookOrder = await this.getBookOrder(pair, 10);
+        if(bookOrder === false) {
+            return false;
+        }
 
         const ofertUnits = bookOrder.totalQtyAsks;
         const demandUnits = bookOrder.totalQtyBids;

@@ -50,43 +50,43 @@ class Oberver {
     async initObserver() {
         try {
             let numLoop = 0;
-        const pair = configuration.observer.pair;
-        const time = configuration.observer.minutes;
-        const current = this;
+            const pair = configuration.observer.pair;
+            const time = configuration.observer.minutes;
+            const current = this;
 
-        await current.observation(pair);
-        const priceBuy = this.analisys.getBuyOptimalPrice();
-        console.log("Precio Optimo Compra " + priceBuy);
-        if (configuration.observer.doBuy === true && priceBuy !== false) {
-            current.brain.totalBuy(priceBuy);
-        }
-        current.brain.totalSale();
-        setInterval(async () => {
-            await current.brain.checkOlderBuyOrder();
-            if (numLoop % configuration.cicles.ciclesRefreshParameters == 0) {
-                await current.brain.updateParameters();
-            }
-            if (numLoop % configuration.cicles.ciclesCheckSale == 0) {
-                await current.saleCorrector.correctPriceSale();
-            }
             await current.observation(pair);
-            if (current.numLoopsToMakeDecisions <= numLoop) {
-                const priceBuy = current.analisys.getBuyOptimalPrice();
-                console.log("Precio Optimo Compra " + priceBuy);
-                if (configuration.observer.doBuy === true && priceBuy !== false) {
-                    current.brain.totalBuy(priceBuy);
-                }
-                if (configuration.observer.doSale === true) {
-                    current.brain.totalSale();
-                }
-
+            const priceBuy = this.analisys.getBuyOptimalPrice();
+            console.log("Precio Optimo Compra " + priceBuy);
+            if (configuration.observer.doBuy === true && priceBuy !== false) {
+                current.brain.totalBuy(priceBuy);
             }
-            numLoop++;
-        }, time * 60 * 1000);
+            current.brain.totalSale();
+            setInterval(async () => {
+                await current.brain.checkOlderBuyOrder();
+                if (numLoop % configuration.cicles.ciclesRefreshParameters == 0) {
+                    await current.brain.updateParameters();
+                }
+                if (numLoop % configuration.cicles.ciclesCheckSale == 0) {
+                    await current.saleCorrector.correctPriceSale();
+                }
+                await current.observation(pair);
+                if (current.numLoopsToMakeDecisions <= numLoop) {
+                    const priceBuy = current.analisys.getBuyOptimalPrice();
+                    console.log("Precio Optimo Compra " + priceBuy);
+                    if (configuration.observer.doBuy === true && priceBuy !== false) {
+                        current.brain.totalBuy(priceBuy);
+                    }
+                    if (configuration.observer.doSale === true) {
+                        current.brain.totalSale();
+                    }
+
+                }
+                numLoop++;
+            }, time * 60 * 1000);
         } catch (error) {
-            
+
         }
-        
+
     }
 
     async observation(pair) {

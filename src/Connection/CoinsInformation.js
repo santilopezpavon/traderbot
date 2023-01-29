@@ -117,11 +117,9 @@ class CoinsInformation {
         const url = "https://api.binance.com/api/v3/depth?limit=" + limit + "&symbol=" + pair;
         return axios.get(url).then(function (response) {
             return response.data;
-            const datos = response.data.symbols;
-            const result = datos.filter(datos => datos.symbol == pair);
-            return result[0].filters;
         }).catch(function (error) {
             console.log(error);
+            return false;
         });
     }
 

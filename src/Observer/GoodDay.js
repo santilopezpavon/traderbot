@@ -68,6 +68,10 @@ class GoodDay {
     async checkGoodMoment(pair) {
         const orderBookIndicators = getOrderBookIndicators();
         const data = await orderBookIndicators.getIndicators(pair);
+        if(data === false) {
+            return false; // Can't obtain information
+        }
+
         this.totalDemand+= data.demandStrong;
         this.totalDemandv2 += data.demandStrongV2Indicator;
         if (data.demandStrong >= 0.55 && data.demandStrongV2Indicator >= 0.5) {

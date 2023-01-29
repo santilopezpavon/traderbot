@@ -25,6 +25,10 @@ class OrderBookIndicators {
         const strong = await this.#orderBook.getStrongPosition(pair);
         const zones = await this.#orderBook.getZones(pair, 0.5);
 
+        if(strong === false || zones === false) {
+            return false;
+        }
+
         return {
             "demandStrong": strong.percentDemandUnits / (strong.percentDemandUnits + strong.percentOfertUnits), // //0 a 1
             "demandStrongV2Indicator": zones.bidsZones.length / (zones.bidsZones.length + zones.asksZones.length), //0 a 1
