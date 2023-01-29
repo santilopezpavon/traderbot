@@ -1,0 +1,1 @@
+git pull && node cleanMemory.js && node initObersever.js
