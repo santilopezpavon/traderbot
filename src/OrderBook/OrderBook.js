@@ -23,6 +23,9 @@ class OrderBook {
 
     async getBookOrder(pair, deep) {
         let bookOrder = await this.#coinsInfo.getBookOrder(pair, deep);
+        if(bookOrder === false) {
+            return false;
+        }
 
         const bidsData = this.formatData(bookOrder, "bids");
         const asksData = this.formatData(bookOrder, "asks");           
